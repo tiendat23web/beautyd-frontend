@@ -2,7 +2,8 @@ import axios from "axios";
 
 export const baseURL = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api",
-    timeout: 10000,
+    // QUAN TRỌNG: Tăng thời gian chờ lên 60 giây (1 phút) để chờ gửi mail thoải mái
+    timeout: 60000, 
     // BỎ headers mặc định - để axios tự động detect Content-Type
 });
 
@@ -12,9 +13,7 @@ baseURL.interceptors.request.use(
         
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            console.log('🔑 Sending request with token:', token.substring(0, 30) + '...');
-        } else {
-            console.log('⚠️  No token found in localStorage');
+            // console.log('🔑 Sending request with token:', token.substring(0, 10) + '...');
         }
         
         // Chỉ set Content-Type: application/json nếu KHÔNG phải FormData
@@ -22,9 +21,6 @@ baseURL.interceptors.request.use(
             config.headers['Content-Type'] = 'application/json';
         }
         // Nếu là FormData, browser sẽ tự động set Content-Type: multipart/form-data
-        
-        console.log('📤 Request:', config.method.toUpperCase(), config.url);
-        console.log('📦 Data type:', config.data instanceof FormData ? 'FormData' : 'JSON');
         
         return config;
     },
@@ -36,13 +32,19 @@ baseURL.interceptors.request.use(
 
 baseURL.interceptors.response.use(
     (response) => {
-        console.log('✅ Response:', response.status, response.config.url);
+        // console.log('✅ Response:', response.status, response.config.url);
         return response;
     },
     (error) => {
         console.error('❌ Response error:', error.response?.status, error.config?.url);
-        console.error('❌ Error details:', error.response?.data);
+        // console.error('❌ Error details:', error.response?.data);
         
+        // Xử lý lỗi Timeout riêng để dễ nhận biết
+        if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+            console.error('⏰ Yêu cầu quá thời gian chờ (Timeout)');
+            // Có thể thông báo cho user biết là mạng chậm hoặc server đang xử lý lâu
+        }
+
         if (error.response?.status === 401) {
             console.log('🚫 401 Unauthorized - Clearing token and redirecting to login');
             localStorage.removeItem("token");
