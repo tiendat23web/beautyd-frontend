@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* Custom animations for dropdown */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modal slide up animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* FullCalendar customization */
+.fc {
+  font-family: inherit;
+}
+
+.fc-button-primary {
+  background-color: #9333ea !important;
+  border-color: #9333ea !important;
+}
+
+.fc-button-primary:hover {
+  background-color: #7e22ce !important;
+  border-color: #7e22ce !important;
+}
+
+.fc-button-primary:disabled {
+  background-color: #c4b5fd !important;
+  border-color: #c4b5fd !important;
+}
+
+.fc-event {
+  cursor: pointer;
+}
+
+/* ReactQuill customization */
+.ql-toolbar {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  background-color: #f9fafb;
+}
+
+.ql-container {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  min-height: 200px;
+}
+
+.ql-editor {
+  min-height: 200px;
+}

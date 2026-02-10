@@ -1,0 +1,482 @@
+/* =========================================
+   1. CONTAINER & BELL BUTTON
+   ========================================= */
+.notification-center {
+  position: relative;
+}
+
+.notification-wrapper {
+  position: relative;
+}
+
+/* Nút Chuông */
+.notification-bell {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 8px;
+  border-radius: 50%;
+  
+  /* Màu Vàng Cam (Amber) */
+  color: #f59e0b; 
+  
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-bell:hover,
+.notification-bell.active {
+  background-color: #fffbeb; /* Nền vàng nhạt khi hover */
+  color: #d97706; /* Vàng đậm hơn */
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid white;
+}
+
+/* =========================================
+   2. NOTIFICATION PANEL (DROPDOWN)
+   ========================================= */
+.notification-panel {
+  position: absolute;
+  top: 120%;
+  right: -80px;
+  width: 360px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.2);
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+  z-index: 1000;
+  animation: slideDown 0.2s ease-out;
+}
+
+.notification-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+  background: transparent;
+  cursor: default;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header */
+.notification-header {
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.notification-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn, .mark-all-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  padding: 6px;
+  border-radius: 4px;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.icon-btn:hover, .mark-all-btn:hover {
+  background-color: #f1f5f9;
+  color: #7c3aed;
+}
+
+/* --- TABS STYLE (KIỂU VIÊN THUỐC) --- */
+.notification-tabs {
+  display: flex;
+  padding: 12px 16px;
+  gap: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  background-color: white;
+}
+
+.filter-tab {
+  flex: 1;
+  background: #f1f5f9; /* Nền xám mặc định */
+  border: none;
+  padding: 8px 4px;
+  border-radius: 20px; /* Bo tròn */
+  font-size: 0.8rem;
+  color: #64748b;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-tab:hover {
+  background-color: #e2e8f0;
+}
+
+.filter-tab.active {
+  background-color: #7c3aed; /* Nền tím khi active */
+  color: white;
+  box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
+}
+
+.filter-tab.active::after {
+  display: none;
+}
+
+/* Action Bar */
+.notification-action-bar {
+  padding: 8px 16px;
+  background-color: #f8fafc;
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.action-bar-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-bar-btn.primary {
+  background-color: white;
+  border-color: #e2e8f0;
+  color: #7c3aed;
+}
+
+.action-bar-btn.primary:hover {
+  background-color: #f3e8ff;
+  border-color: #d8b4fe;
+}
+
+.action-bar-btn.danger {
+  background-color: white;
+  border-color: #e2e8f0;
+  color: #ef4444;
+}
+
+.action-bar-btn.danger:hover {
+  background-color: #fef2f2;
+  border-color: #fca5a5;
+}
+
+/* List */
+.notification-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+  background-color: white;
+}
+
+.notification-list::-webkit-scrollbar {
+  width: 6px;
+}
+.notification-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.notification-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.notification-item {
+  display: flex;
+  padding: 16px;
+  gap: 12px;
+  border-bottom: 1px solid #f8fafc;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+  align-items: flex-start;
+}
+
+.notification-item:hover {
+  background-color: #f8fafc;
+}
+
+.notification-item.unread {
+  background-color: #f5f3ff;
+}
+
+.unread-indicator {
+  position: absolute;
+  top: 16px;
+  left: 8px;
+  width: 6px;
+  height: 6px;
+  background-color: #7c3aed;
+  border-radius: 50%;
+}
+
+.notification-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.icon-success { color: #10b981; }
+.icon-warning { color: #f59e0b; }
+.icon-error { color: #ef4444; }
+.icon-info { color: #3b82f6; }
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.notification-message {
+  margin: 0 0 6px 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notification-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.notification-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.notification-item:hover .notification-actions {
+  opacity: 1;
+}
+
+.action-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  color: #64748b;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.action-btn:hover {
+  background-color: #f1f5f9;
+  color: #7c3aed;
+}
+
+.action-btn.delete:hover {
+  background-color: #fef2f2;
+  color: #ef4444;
+  border-color: #fca5a5;
+}
+
+.notification-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #94a3b8;
+  gap: 12px;
+}
+
+.notification-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #64748b;
+}
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #7c3aed;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.notification-footer {
+  padding: 12px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  background-color: white;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.view-all-btn {
+  background: none;
+  border: none;
+  color: #7c3aed;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.view-all-btn:hover {
+  text-decoration: underline;
+}
+
+/* =========================================
+   3. TOAST NOTIFICATION (POPUP GÓC MÀN HÌNH)
+   ========================================= */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999; /* Đảm bảo nổi trên cùng */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.toast-notification {
+  background: white;
+  border-left: 4px solid #7c3aed;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 300px;
+  max-width: 400px;
+  animation: slideInLeft 0.3s ease-out;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.toast-icon {
+  color: #7c3aed;
+  margin-top: 2px;
+}
+
+.toast-content h4 {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.toast-content p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+}
+
+.toast-close:hover {
+  color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .notification-panel {
+    position: fixed;
+    top: 60px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+  }
+  
+  .toast-container {
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    align-items: center;
+  }
+  
+  .toast-notification {
+    width: 100%;
+    max-width: none;
+  }
+}
