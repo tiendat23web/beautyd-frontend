@@ -11,7 +11,6 @@ import {
   AlertCircle,
   ChevronRight,
   Star,
-  User,
 } from "lucide-react";
 import {
   getUserBookings,
@@ -221,21 +220,56 @@ const BookingHistoryPage = () => {
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
           <div className="flex flex-wrap gap-2">
             {["ALL", "PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"].map(
-              (status) => (
-                <button
-                  key={status}
-                  onClick={() => setStatusFilter(status)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    statusFilter === status
-                      ? "bg-purple-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {status === "ALL"
-                    ? "Tất cả"
-                    : getStatusBadge(status).props.children[1]}
-                </button>
-              )
+              (status) => {
+                // ✅ Định nghĩa màu cho từng trạng thái
+                const getFilterButtonStyle = () => {
+                  if (statusFilter === status) {
+                    // Màu khi được chọn - match với status badge
+                    switch(status) {
+                      case "ALL":
+                        return "bg-purple-600 text-white border-purple-600";
+                      case "PENDING":
+                        return "bg-yellow-500 text-white border-yellow-500";
+                      case "CONFIRMED":
+                        return "bg-blue-600 text-white border-blue-600";
+                      case "COMPLETED":
+                        return "bg-green-600 text-white border-green-600";
+                      case "CANCELLED":
+                        return "bg-red-600 text-white border-red-600";
+                      default:
+                        return "bg-purple-600 text-white border-purple-600";
+                    }
+                  } else {
+                    // Màu khi không được chọn - màu nhạt tương ứng
+                    switch(status) {
+                      case "ALL":
+                        return "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100";
+                      case "PENDING":
+                        return "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100";
+                      case "CONFIRMED":
+                        return "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100";
+                      case "COMPLETED":
+                        return "bg-green-50 text-green-700 border-green-200 hover:bg-green-100";
+                      case "CANCELLED":
+                        return "bg-red-50 text-red-700 border-red-200 hover:bg-red-100";
+                      default:
+                        return "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200";
+                    }
+                  }
+                };
+
+                return (
+                  <button
+                    key={status}
+                    onClick={() => setStatusFilter(status)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${getFilterButtonStyle()}`}
+                  >
+                    {status === "ALL"
+                      ? "Tất cả"
+                      : getStatusBadge(status).props.children[1]}
+                  </button>
+                );
+              }
             )}
           </div>
         </div>
@@ -281,13 +315,6 @@ const BookingHistoryPage = () => {
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4" />
                           <span>{booking.service.duration} phút</span>
-                        </div>
-                        {/* ✅ Hiển thị số lượng */}
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-purple-600" />
-                          <span className="font-medium text-purple-600">
-                            {booking.quantity || 1} người
-                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <CreditCard className="w-4 h-4" />
