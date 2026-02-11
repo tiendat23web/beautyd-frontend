@@ -166,6 +166,14 @@ const BookingDetailPage = () => {
                   <p>{booking.service.duration} phút</p>
                 </div>
               </div>
+              {/* ✅ Hiển thị số lượng */}
+              <div className="flex items-center gap-2 text-purple-600">
+                <User className="w-5 h-5" />
+                <div>
+                  <p className="font-medium">Số lượng</p>
+                  <p className="font-bold text-lg">{booking.quantity || 1} người</p>
+                </div>
+              </div>
               <div className="flex items-center gap-2 text-gray-600">
                 <CreditCard className="w-5 h-5" />
                 <div>

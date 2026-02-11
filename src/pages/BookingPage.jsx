@@ -128,113 +128,137 @@ const CalendarModal = ({ isOpen, onClose, selectedDate, onSelectDate, bookedTime
     
     if (isToday) {
       const [hour, minute] = time.split(':').map(Number);
-      if ((hour * 60 + minute) <= (currentHour * 60 + currentMinute)) return true;
+      const timeInMinutes = hour * 60 + minute;
+      const currentTimeInMinutes = currentHour * 60 + currentMinute;
+      if (timeInMinutes <= currentTimeInMinutes) return true;
     }
-    return bookedTimeSlots.includes(time);
+
+    return bookedTimeSlots.some(booked => {
+      const bookedDate = new Date(booked.date);
+      return bookedDate.toDateString() === selectedDateObj.toDateString() && booked.time === time;
+    });
   };
 
-  const days = (() => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const daysArr = [];
-    for (let i = 0; i < firstDay.getDay(); i++) daysArr.push(null);
-    for (let day = 1; day <= lastDay.getDate(); day++) daysArr.push(new Date(year, month, day));
-    return daysArr;
-  })();
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days = [];
+    for (let i = 0; i < startingDayOfWeek; i++) days.push(null);
+    for (let day = 1; day <= daysInMonth; day++) days.push(new Date(year, month, day));
+    return days;
+  };
+
+  const isPastDate = (date) => {
+    if (!date) return false;
+    return date < today;
+  };
+
+  const handleDateClick = (date) => {
+    if (isPastDate(date)) return;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
+    onSelectDate(dateString, null);
+    setSelectedTime("");
+  };
+
+  const handleTimeSelect = (time) => {
+    setSelectedTime(time);
+    onSelectDate(selectedDate, time);
+  };
+
+  const handleConfirm = () => {
+    if (selectedDate && selectedTime) onClose();
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col animate-scaleIn overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white z-10">
-            <h3 className="font-bold text-gray-900 text-xl">Chọn lịch hẹn</h3>
-            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X className="w-5 h-5"/></button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-fadeIn">
+      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden animate-scaleIn">
+        <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-6 text-white flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md"><Calendar className="w-6 h-6" /></div>
+            <div><h2 className="text-xl font-bold">Chọn ngày & giờ</h2><p className="text-sm text-purple-100">Vui lòng chọn thời gian phù hợp</p></div>
+          </div>
+          <button onClick={onClose} className="text-white/80 hover:text-white transition-colors"><X className="w-6 h-6" /></button>
         </div>
 
-        <div className="p-6 flex-1 overflow-y-auto custom-scrollbar">
-            <div className="flex items-center justify-between bg-gray-50 rounded-2xl p-2 mb-6">
-                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className="p-2 hover:bg-white rounded-xl shadow-sm"><ChevronLeft className="w-5 h-5" /></button>
-                <span className="font-bold text-gray-900 capitalize">{currentMonth.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })}</span>
-                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className="p-2 hover:bg-white rounded-xl shadow-sm"><ChevronRight className="w-5 h-5" /></button>
+        <div className="p-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className="p-2 hover:bg-gray-100 rounded-xl transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+              <h3 className="font-bold text-gray-900">{currentMonth.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })}</h3>
+              <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className="p-2 hover:bg-gray-100 rounded-xl transition-colors"><ChevronRight className="w-5 h-5" /></button>
             </div>
 
-            <div className="grid grid-cols-7 gap-2 mb-6">
-                {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(d => <div key={d} className="text-center text-xs font-bold text-gray-400 py-1">{d}</div>)}
-                {days.map((date, idx) => {
-                    if (!date) return <div key={`empty-${idx}`} />;
-                    const isPast = date < today;
-                    const dateStr = date.toLocaleDateString('en-CA');
-                    return (
-                        <button key={idx} onClick={() => { onSelectDate(dateStr, ""); setSelectedTime(""); }} disabled={isPast}
-                            className={`aspect-square rounded-xl text-sm font-semibold transition-all flex items-center justify-center
-                                ${selectedDate === dateStr ? 'bg-purple-600 text-white shadow-lg' : isPast ? 'text-gray-300' : 'hover:bg-purple-50 text-gray-700'}`}
-                        >
-                            {date.getDate()}
-                        </button>
-                    )
+            <div className="grid grid-cols-7 gap-2">
+              {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(day => <div key={day} className="text-center text-xs font-semibold text-gray-500 py-2">{day}</div>)}
+              {getDaysInMonth(currentMonth).map((date, index) => {
+                if (!date) return <div key={`empty-${index}`} />;
+                const isSelected = selectedDate && new Date(selectedDate).toDateString() === date.toDateString();
+                const isPast = isPastDate(date);
+                const isDisabled = isPast;
+
+                return (
+                  <button key={date.toDateString()} onClick={() => !isDisabled && handleDateClick(date)} disabled={isDisabled} className={`aspect-square rounded-xl text-sm font-medium transition-all ${isSelected ? 'bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-lg scale-105' : isDisabled ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-purple-50 text-gray-700'}`}>
+                    {date.getDate()}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {selectedDate && (
+            <div className="mb-6 animate-fadeIn">
+              <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2"><Clock className="w-4 h-4 text-purple-600" />Chọn giờ ({serviceDuration} phút/slot)</h4>
+              <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto custom-scrollbar">
+                {generateTimeSlots().map(time => {
+                  const isBooked = isTimeDisabled(time);
+                  const isSelected = selectedTime === time;
+                  return (
+                    <button key={time} onClick={() => !isBooked && handleTimeSelect(time)} disabled={isBooked} className={`py-3 rounded-xl text-sm font-medium transition-all ${isSelected ? 'bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-md' : isBooked ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-50 hover:bg-purple-50 text-gray-700'}`}>
+                      {time}
+                    </button>
+                  );
                 })}
+              </div>
             </div>
+          )}
 
-            {selectedDate && (
-                <div className="animate-fadeIn pb-4">
-                    <div className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-3">
-                        <Clock className="w-4 h-4 text-purple-600" /> Giờ trống
-                    </div>
-                    <div className="grid grid-cols-4 gap-2">
-                        {generateTimeSlots().map(time => {
-                            const disabled = isTimeDisabled(time);
-                            return (
-                                <button key={time} onClick={() => !disabled && setSelectedTime(time)} disabled={disabled}
-                                    className={`py-2 rounded-lg text-sm font-medium transition-all
-                                        ${selectedTime === time ? 'bg-purple-600 text-white shadow-md' : disabled ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 'bg-white border border-gray-200 hover:border-purple-500 hover:text-purple-600'}`}
-                                >
-                                    {time}
-                                </button>
-                            )
-                        })}
-                    </div>
-                </div>
-            )}
-        </div>
-
-        <div className="p-4 border-t border-gray-100 bg-white z-10">
-            <button onClick={() => { if(selectedDate && selectedTime) { onSelectDate(selectedDate, selectedTime); onClose(); } }} disabled={!selectedDate || !selectedTime}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3.5 rounded-xl font-bold hover:shadow-lg disabled:opacity-50 disabled:shadow-none transition-all"
-            >
-                Xác nhận
-            </button>
+          <button onClick={handleConfirm} disabled={!selectedDate || !selectedTime} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            Xác nhận
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-// --- 4. TRANG ĐẶT LỊCH CHÍNH ---
 const BookingPage = () => {
   const { serviceId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookingDate, setBookingDate] = useState("");
   const [bookingTime, setBookingTime] = useState("");
   const [bookingNotes, setBookingNotes] = useState("");
   const [quantity, setQuantity] = useState(1);
-  
-  // --- STATE MỚI CHO DISCOUNT ---
-  const [couponCode, setCouponCode] = useState(""); // Mã nhập vào
-  const [appliedDiscount, setAppliedDiscount] = useState(null); // Thông tin mã đã áp dụng (từ API)
-  const [couponError, setCouponError] = useState(""); // Lỗi mã
-  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false); // Loading khi check mã
-  // ------------------------------
-
-  const [submitting, setSubmitting] = useState(false);
-  const [bookedTimeSlots, setBookedTimeSlots] = useState([]);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [bookingSuccessDetails, setBookingSuccessDetails] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [bookedTimeSlots, setBookedTimeSlots] = useState([]);
+
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
 
   useEffect(() => {
     if (!user) { navigate("/login"); return; }
@@ -260,12 +284,6 @@ const BookingPage = () => {
     
     // Nếu có mã giảm giá đã áp dụng, trừ tiền giảm
     if (appliedDiscount) {
-        // API trả về appliedDiscount.discountAmount (số tiền giảm)
-        // và appliedDiscount.finalPrice (giá sau giảm cho 1 đơn vị hoặc tổng, tuỳ API BE)
-        // Tuy nhiên logic BE mình viết là trả về tổng tiền sau giảm.
-        // Để an toàn, mình tính lại ở FE dựa trên discountAmount nhận được.
-        // Logic BE: discountAmount là tổng số tiền được giảm cho cả đơn.
-        
         const final = baseTotal - appliedDiscount.discountAmount;
         return final > 0 ? final : 0;
     }
@@ -338,13 +356,13 @@ const BookingPage = () => {
       const d = new Date(bookingDate);
       d.setHours(parseInt(h), parseInt(m));
 
+      // ✅ THÊM QUANTITY VÀO API CALL
       const response = await createBooking({
         serviceId: parseInt(serviceId),
         bookingDate: d.toISOString(),
         notes: bookingNotes.trim() || undefined,
-        // quantity, // BE của bạn chưa xử lý quantity trong createBooking ở code trước, nhưng cứ gửi nếu cần
-        // totalAmount: calculateTotal(), // BE tự tính lại để bảo mật, ko cần gửi
-        discountId: appliedDiscount ? appliedDiscount.id : null // Gửi ID mã giảm giá
+        quantity: quantity, // ✅ Gửi số lượng lên backend
+        discountId: appliedDiscount ? appliedDiscount.id : null
       });
 
       if (response.status === 400) throw new Error(response.data.error);
@@ -388,144 +406,155 @@ const BookingPage = () => {
           <div className="lg:col-span-4 bg-white rounded-3xl shadow-sm border border-gray-100">
              <SimpleMapView address={service.provider.businessAddress} businessName={service.provider.businessName} />
              <div className="p-6">
-                <div className="flex items-start gap-4 mb-4">
-                    {service.images?.[0] && <img src={service.images[0].imageUrl} alt="" className="w-16 h-16 rounded-xl object-cover border border-gray-100" />}
-                    <div>
-                        <h2 className="font-bold text-gray-900 text-lg leading-tight mb-1">{service.name}</h2>
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                             <Clock className="w-3.5 h-3.5" /> {service.duration} phút
-                             <span className="text-gray-300">|</span>
-                             <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" /> 5.0
+                <div className="flex items-start gap-4 mb-5">
+                    <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100 flex-shrink-0 shadow-md">
+                        {service.provider.avatar ? <img src={service.provider.avatar} alt={service.provider.businessName} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-purple-600 font-bold text-xl">{service.provider.businessName.charAt(0)}</div>}
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="font-bold text-gray-900 text-lg leading-tight">{service.provider.businessName}</h3>
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400"/>
+                            <span className="text-sm font-semibold text-gray-700">{service.provider.rating || 5.0}</span>
+                            <span className="text-xs text-gray-400">({service.provider.totalReviews || 0} đánh giá)</span>
                         </div>
                     </div>
                 </div>
-                <div className="space-y-3 pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-3">
-                         <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center"><User className="w-4 h-4 text-purple-600"/></div>
-                         <div><p className="text-xs text-gray-500">Người đặt</p><p className="font-semibold text-gray-900 text-sm">{user?.fullName}</p></div>
-                    </div>
-                     <div className="flex items-center gap-3">
-                         <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center"><MapPin className="w-4 h-4 text-blue-600"/></div>
-                         <div><p className="text-xs text-gray-500">Địa điểm</p><p className="font-semibold text-gray-900 text-sm line-clamp-1">{service.provider.businessAddress}</p></div>
+                
+                <div className="space-y-3 text-sm">
+                    <div className="flex items-start gap-3 text-gray-600">
+                        <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-purple-600"/>
+                        <span className="leading-snug">{service.provider.businessAddress}</span>
                     </div>
                 </div>
              </div>
           </div>
 
-          {/* CỘT PHẢI: FORM */}
-          <div className="lg:col-span-8 bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-8 border-b border-gray-50 pb-4">Thông tin đặt lịch</h1>
-
-                <div className="space-y-8">
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                         <div className="space-y-2">
-                             <label className="text-sm font-semibold text-gray-700">Ngày và giờ <span className="text-red-500">*</span></label>
-                             <button onClick={() => setShowCalendarModal(true)} className={`w-full p-4 border rounded-2xl flex items-center justify-between transition-all ${bookingDate ? 'border-purple-500 bg-purple-50' : 'border-gray-200'}`}>
-                                 <div className="flex items-center gap-3">
-                                     <div className="bg-white p-2 rounded-xl shadow-sm"><Calendar className="w-5 h-5 text-purple-600" /></div>
-                                     <div className="text-left">
-                                         <p className="text-xs text-gray-500">Thời gian</p>
-                                         <p className={`font-bold ${bookingDate ? 'text-purple-700' : 'text-gray-400'}`}>
-                                             {bookingDate && bookingTime ? `${bookingTime} - ${new Date(bookingDate).toLocaleDateString('vi-VN')}` : "Chạm để chọn"}
-                                         </p>
-                                     </div>
-                                 </div>
-                             </button>
-                         </div>
-
-                         <div className="space-y-2">
-                              <label className="text-sm font-semibold text-gray-700">Số lượng</label>
-                              <div className="flex items-center justify-between border border-gray-200 rounded-2xl p-3">
-                                   <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><Minus className="w-4 h-4 text-gray-600"/></button>
-                                   <span className="font-bold text-lg text-gray-900">{quantity}</span>
-                                   <button onClick={() => setQuantity(Math.min(10, quantity + 1))} className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><Plus className="w-4 h-4 text-gray-600"/></button>
-                              </div>
-                         </div>
-                     </div>
-
-                     <div className="space-y-2">
-                           <label className="text-sm font-semibold text-gray-700">Ghi chú</label>
-                           <textarea value={bookingNotes} onChange={(e) => setBookingNotes(e.target.value)} placeholder="Yêu cầu đặc biệt..." className="w-full p-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-purple-500 min-h-[100px] resize-none text-sm" />
-                     </div>
-
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                           {/* --- PHẦN  (CẬP NHẬT) --- */}
-                           <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700">Mã giảm giá</label>
-                                <div className="flex gap-2">
-                                    <div className="relative flex-1">
-                                        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                        <input 
-                                            type="text" 
-                                            value={couponCode} 
-                                            onChange={(e) => {
-                                                setCouponCode(e.target.value.toUpperCase());
-                                                setCouponError(""); // Xóa lỗi khi nhập lại
-                                            }}
-                                            placeholder="Nhập mã " 
-                                            className={`w-full pl-9 pr-4 py-3 border rounded-xl text-sm transition-all
-                                                ${couponError ? 'border-red-300 focus:ring-red-200' : 'border-gray-200 focus:border-purple-500'}
-                                                ${appliedDiscount ? 'bg-gray-100 text-gray-500' : 'bg-white'}
-                                            `}
-                                            disabled={!!appliedDiscount} // Khóa ô nhập khi đã áp dụng
-                                        />
-                                    </div>
-                                    {appliedDiscount ? (
-                                        <button 
-                                            onClick={handleRemoveCoupon} 
-                                            className="px-4 py-2 bg-red-100 text-red-600 hover:bg-red-200 rounded-xl text-sm font-bold transition-colors"
-                                        >
-                                            Gỡ bỏ
-                                        </button>
-                                    ) : (
-                                        <button 
-                                            onClick={handleApplyCoupon} 
-                                            disabled={isValidatingCoupon || !couponCode}
-                                            className="px-4 py-2 bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50 rounded-xl text-sm font-bold transition-colors"
-                                        >
-                                            {isValidatingCoupon ? "..." : "Áp dụng"}
-                                        </button>
-                                    )}
-                                </div>
-                                {couponError && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {couponError}</p>}
-                                {appliedDiscount && <p className="text-xs text-green-600 mt-1 font-medium">Đã áp dụng mã: {appliedDiscount.code}</p>}
-                           </div>
-                           
-                           <div className="space-y-2">
-                               <label className="text-sm font-semibold text-gray-700">Thanh toán</label>
-                               <div className="flex items-center gap-3 p-3 border border-purple-200 bg-purple-50 rounded-xl">
-                                   <Wallet className="w-5 h-5 text-orange-500"/>
-                                   <div className="flex-1"><p className="text-sm font-bold text-gray-900">Thanh toán tại chỗ</p><p className="text-xs text-gray-500"></p></div> 
-                                   <div className="w-4 h-4 rounded-full border-[5px] border-purple-600"></div>
-                               </div>
-                           </div>
-                     </div>
-                     
-                     <div className="bg-gray-50 rounded-2xl p-6 space-y-3">
-                         <div className="flex justify-between text-sm text-gray-600">
-                             <span>Đơn giá</span>
-                             <span>{new Intl.NumberFormat('vi-VN', {style:'currency',currency:'VND'}).format(service.price)} x {quantity}</span>
-                         </div>
-                         
-                         {/* --- HIỂN THỊ DÒNG GIẢM GIÁ --- */}
-                         {appliedDiscount && (
-                            <div className="flex justify-between text-sm text-green-600 font-medium animate-fadeIn">
-                                <span>Mã giảm giá ({appliedDiscount.code})</span>
-                                <span>-{new Intl.NumberFormat('vi-VN', {style:'currency',currency:'VND'}).format(appliedDiscount.discountAmount)}</span>
-                            </div>
-                         )}
-
-                         <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
-                             <span className="font-bold text-gray-900 text-lg">Tổng cộng</span>
-                             <span className="font-bold text-2xl text-purple-600">
-                                 {new Intl.NumberFormat('vi-VN', {style:'currency',currency:'VND'}).format(calculateTotal())}
-                             </span>
-                         </div>
-                         <button onClick={handleBookingSubmit} disabled={submitting} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50">
-                             {submitting ? "Đang xử lý..." : "Xác nhận đặt lịch"}
-                         </button>
-                     </div>
+          {/* CỘT PHẢI: FORM ĐẶT LỊCH */}
+          <div className="lg:col-span-8 bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+                <div className="mb-8">
+                   <h1 className="text-3xl font-bold text-gray-900 mb-3">{service.name}</h1>
+                   <div className="flex flex-wrap items-center gap-4 text-sm">
+                       <div className="flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-xl">
+                           <Clock className="w-4 h-4 text-purple-600"/>
+                           <span className="font-medium text-gray-700">{service.duration} phút</span>
+                       </div>
+                       <div className="flex items-center gap-2 px-4 py-2 bg-green-50 rounded-xl">
+                           <span className="text-2xl font-bold text-green-600">{new Intl.NumberFormat('vi-VN', {style:'currency',currency:'VND'}).format(service.price)}</span>
+                       </div>
+                   </div>
+                   {service.description && <p className="text-gray-600 mt-4 leading-relaxed">{service.description}</p>}
                 </div>
+
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-700">Ngày và giờ <span className="text-red-500">*</span></label>
+                            <button onClick={() => setShowCalendarModal(true)} className={`w-full p-4 border rounded-2xl flex items-center justify-between transition-all ${bookingDate ? 'border-purple-500 bg-purple-50' : 'border-gray-200'}`}>
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-white p-2 rounded-xl shadow-sm"><Calendar className="w-5 h-5 text-purple-600" /></div>
+                                    <div className="text-left">
+                                        <p className="text-xs text-gray-500">Thời gian</p>
+                                        <p className={`font-bold ${bookingDate ? 'text-purple-700' : 'text-gray-400'}`}>
+                                            {bookingDate && bookingTime ? `${bookingTime} - ${new Date(bookingDate).toLocaleDateString('vi-VN')}` : "Chạm để chọn"}
+                                        </p>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div className="space-y-2">
+                             <label className="text-sm font-semibold text-gray-700">Số lượng</label>
+                             <div className="flex items-center justify-between border border-gray-200 rounded-2xl p-3">
+                                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><Minus className="w-4 h-4 text-gray-600"/></button>
+                                  <span className="font-bold text-lg text-gray-900">{quantity}</span>
+                                  <button onClick={() => setQuantity(Math.min(10, quantity + 1))} className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><Plus className="w-4 h-4 text-gray-600"/></button>
+                             </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                          <label className="text-sm font-semibold text-gray-700">Ghi chú</label>
+                          <textarea value={bookingNotes} onChange={(e) => setBookingNotes(e.target.value)} placeholder="Yêu cầu đặc biệt..." className="w-full p-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-purple-500 min-h-[100px] resize-none text-sm" />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* --- PHẦN MÃ GIẢM GIÁ (CẬP NHẬT) --- */}
+                          <div className="space-y-2">
+                               <label className="text-sm font-semibold text-gray-700">Mã giảm giá</label>
+                               <div className="flex gap-2">
+                                   <div className="relative flex-1">
+                                       <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                       <input 
+                                           type="text" 
+                                           value={couponCode} 
+                                           onChange={(e) => {
+                                               setCouponCode(e.target.value.toUpperCase());
+                                               setCouponError(""); // Xóa lỗi khi nhập lại
+                                           }}
+                                           placeholder="Nhập mã" 
+                                           className={`w-full pl-9 pr-4 py-3 border rounded-xl text-sm transition-all
+                                               ${couponError ? 'border-red-300 focus:ring-red-200' : 'border-gray-200 focus:border-purple-500'}
+                                               ${appliedDiscount ? 'bg-gray-100 text-gray-500' : 'bg-white'}
+                                           `}
+                                           disabled={!!appliedDiscount} // Khóa ô nhập khi đã áp dụng
+                                       />
+                                   </div>
+                                   {appliedDiscount ? (
+                                       <button 
+                                           onClick={handleRemoveCoupon} 
+                                           className="px-4 py-2 bg-red-100 text-red-600 hover:bg-red-200 rounded-xl text-sm font-bold transition-colors"
+                                       >
+                                           Gỡ bỏ
+                                       </button>
+                                   ) : (
+                                       <button 
+                                           onClick={handleApplyCoupon} 
+                                           disabled={isValidatingCoupon || !couponCode}
+                                           className="px-4 py-2 bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50 rounded-xl text-sm font-bold transition-colors"
+                                       >
+                                           {isValidatingCoupon ? "..." : "Áp dụng"}
+                                       </button>
+                                   )}
+                               </div>
+                               {couponError && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {couponError}</p>}
+                               {appliedDiscount && <p className="text-xs text-green-600 mt-1 font-medium">Đã áp dụng mã: {appliedDiscount.code}</p>}
+                          </div>
+                          
+                          <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-700">Thanh toán</label>
+                              <div className="flex items-center gap-3 p-3 border border-purple-200 bg-purple-50 rounded-xl">
+                                  <Wallet className="w-5 h-5 text-orange-500"/>
+                                  <div className="flex-1"><p className="text-sm font-bold text-gray-900">Thanh toán tại chỗ</p><p className="text-xs text-gray-500"></p></div> 
+                                  <div className="w-4 h-4 rounded-full border-[5px] border-purple-600"></div>
+                              </div>
+                          </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-2xl p-6 space-y-3">
+                        <div className="flex justify-between text-sm text-gray-600">
+                            <span>Đơn giá</span>
+                            <span>{new Intl.NumberFormat('vi-VN', {style:'currency',currency:'VND'}).format(service.price)} đ x {quantity}</span>
+                        </div>
+                        
+                        {/* --- HIỂN THỊ DÒNG GIẢM GIÁ --- */}
+                        {appliedDiscount && (
+                           <div className="flex justify-between text-sm text-green-600 font-medium animate-fadeIn">
+                               <span>Mã giảm giá ({appliedDiscount.code})</span>
+                               <span>-{new Intl.NumberFormat('vi-VN', {style:'currency',currency:'VND'}).format(appliedDiscount.discountAmount)}</span>
+                           </div>
+                        )}
+
+                        <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
+                            <span className="font-bold text-gray-900 text-lg">Tổng cộng</span>
+                            <span className="font-bold text-2xl text-purple-600">
+                                {new Intl.NumberFormat('vi-VN', {style:'currency',currency:'VND'}).format(calculateTotal())}
+                            </span>
+                        </div>
+                        <button onClick={handleBookingSubmit} disabled={submitting} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50">
+                            {submitting ? "Đang xử lý..." : "Xác nhận đặt lịch"}
+                        </button>
+                    </div>
+               </div>
           </div>
         </div>
       </div>

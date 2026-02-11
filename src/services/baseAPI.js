@@ -9,7 +9,7 @@ export const baseURL = axios.create({
 
 baseURL.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("token");        
         
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -47,7 +47,7 @@ baseURL.interceptors.response.use(
 
         if (error.response?.status === 401) {
             console.log('🚫 401 Unauthorized - Clearing token and redirecting to login');
-            localStorage.removeItem("token");
+            localStorage.removeItem("token");``
             localStorage.removeItem("user");
             
             // Chỉ redirect nếu không phải đang ở trang login
