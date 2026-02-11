@@ -11,6 +11,7 @@ import {
   AlertCircle,
   ChevronRight,
   Star,
+  User, // ✅ Đã thêm icon User
 } from "lucide-react";
 import {
   getUserBookings,
@@ -316,6 +317,16 @@ const BookingHistoryPage = () => {
                           <Clock className="w-4 h-4" />
                           <span>{booking.service.duration} phút</span>
                         </div>
+                        
+                        {/* ✅ ĐÃ THÊM: Hiển thị số lượng */}
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-purple-600" />
+                          <span className="font-medium text-purple-600">
+                            {booking.quantity || 1} người
+                          </span>
+                        </div>
+                        {/* ----------------------------- */}
+
                         <div className="flex items-center gap-2">
                           <CreditCard className="w-4 h-4" />
                           <span className="font-semibold text-purple-600">
