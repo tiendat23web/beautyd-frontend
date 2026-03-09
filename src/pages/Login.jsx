@@ -28,7 +28,6 @@ const LoginPage = () => {
     }
   };
 
-  // ĐÃ SỬA: Tối ưu lại Regex bắt lỗi Email và Số điện thoại Việt Nam
   const validateForm = () => {
     const newErrors = {};
     const identifier = formData.email.trim();
@@ -37,7 +36,6 @@ const LoginPage = () => {
       newErrors.email = "Vui lòng nhập email hoặc số điện thoại";
     } else {
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
-      // Bắt đầu bằng 0 hoặc 84, theo sau là các đầu số hợp lệ, và có đúng 8 số cuối
       const isPhone = /^(0|84)[3|5|7|8|9][0-9]{8}$/.test(identifier);
 
       if (!isEmail && !isPhone) {
@@ -52,7 +50,6 @@ const LoginPage = () => {
     return newErrors;
   };
 
-  // ĐÃ SỬA: Xử lý bắt lỗi chi tiết từ Backend (401 Sai mật khẩu, 404 Không thấy tài khoản)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -67,7 +64,6 @@ const LoginPage = () => {
     try {
       const response = await loginUser(formData.email.trim(), formData.password);
       
-      // Axios thường trả về status 200 cho thành công
       if (response.status === 200 || response.data?.token) {
         const { token, user } = response.data;
 
@@ -86,22 +82,26 @@ const LoginPage = () => {
     } catch (error) {
       console.error("Login error:", error);
       
-      // Xử lý lỗi trả về từ Backend (nếu dùng Axios)
       if (error.response) {
         const status = error.response.status;
-        const backendMsg = error.response.data?.message || error.response.data?.error;
+        const backendMsg = error.response.data?.message || error.response.data?.error || "";
 
+        // ==========================================
+        // CÁC TRƯỜNG HỢP BÁO LỖI CHI TIẾT
+        // ==========================================
         if (status === 404) {
           toast.error("Tài khoản không tồn tại. Vui lòng kiểm tra lại email/SĐT!");
         } else if (status === 401) {
           toast.error("Mật khẩu không chính xác. Vui lòng thử lại!");
+        } else if (status === 403 || backendMsg.toLowerCase().includes("lock") || backendMsg.toLowerCase().includes("khóa")) {
+          // BỔ SUNG: Xử lý tài khoản bị khóa
+          toast.error("Tài khoản của bạn đã bị khóa hoặc vô hiệu hóa. Vui lòng liên hệ CSKH!");
         } else if (status === 400) {
           toast.error(backendMsg || "Thông tin đăng nhập không hợp lệ.");
         } else {
           toast.error(backendMsg || "Đăng nhập thất bại. Vui lòng thử lại.");
         }
       } else {
-        // Lỗi không có phản hồi từ server (mất mạng, server sập)
         toast.error("Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng!");
       }
     } finally {
