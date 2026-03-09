@@ -23,7 +23,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { searchServices } from "../services/servicesService";
 
-// 👇 Import Component Thông báo (Đảm bảo đường dẫn đúng với dự án của bạn)
 import NotificationCenterEnhanced from "./NotificationCenter/NotificationCenterEnhanced";
 
 const Header = () => {
@@ -87,15 +86,15 @@ const Header = () => {
         element.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     } else {
-      // Nếu đang ở trang khác, navigate về trang chủ rồi mới scroll
+  
       navigate("/");
-      // Dùng setTimeout để đợi trang Home render xong mới tìm ID
+   
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
           element.scrollIntoView({ behavior: "smooth", block: "start" });
         }
-      }, 500); // Đợi 500ms
+      }, 500); 
     }
   };
 
@@ -569,13 +568,13 @@ const Header = () => {
         </div>
       </div>
 
-      {/* 3. NAVIGATION (Đã tích hợp Scroll to Section) */}
+      {/* 3. NAVIGATION (Đã tích hợp Scroll to Section và Fix size chữ) */}
       <nav className="border-t border-gray-100 hidden md:block bg-gray-50/50">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-8 lg:gap-12 py-4 overflow-x-auto no-scrollbar text-xl md:text-2xl">
+          <div className="flex items-center gap-8 lg:gap-12 py-4 overflow-x-auto no-scrollbar text-sm md:text-base font-medium">
             <Link
               to="/"
-              className="font-medium text-purple-600 hover:text-purple-700 whitespace-nowrap transition-colors"
+              className="text-purple-600 hover:text-purple-700 whitespace-nowrap transition-colors"
             >
               Trang chủ
             </Link>
@@ -583,27 +582,27 @@ const Header = () => {
             {/* 👇 DÙNG BUTTON ĐỂ XỬ LÝ SCROLL */}
             <button
               onClick={() => handleScrollToSection('hot-deals-section')}
-              className="font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap transition-colors bg-transparent border-none cursor-pointer text-xl md:text-2xl"
+              className="text-gray-600 hover:text-purple-600 whitespace-nowrap transition-colors bg-transparent border-none cursor-pointer"
             >
               Khuyến mãi HOT
             </button>
             
             <button
               onClick={() => handleScrollToSection('services-for-you')}
-              className="font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap transition-colors bg-transparent border-none cursor-pointer text-xl md:text-2xl"
+              className="text-gray-600 hover:text-purple-600 whitespace-nowrap transition-colors bg-transparent border-none cursor-pointer"
             >
                Dịch vụ nổi bật 
             </button>
             
             <Link
               to="/"
-              className="font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap transition-colors"
+              className="text-gray-600 hover:text-purple-600 whitespace-nowrap transition-colors"
             >
               Cộng Đồng
             </Link>
             <Link
               to="/blog"
-              className="font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap transition-colors"
+              className="text-gray-600 hover:text-purple-600 whitespace-nowrap transition-colors"
             >
               Blog làm đẹp
             </Link>
@@ -611,14 +610,13 @@ const Header = () => {
         </div>
       </nav>
 
-
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 top-[140px] bg-white z-[60] overflow-y-auto">
           <nav className="px-6 py-6 space-y-4">
             <Link
               to="/"
-              className="block text-xl md:text-2xl font-medium text-purple-600 border-b border-purple-100 pb-3"
+              className="block text-base font-medium text-purple-600 border-b border-purple-100 pb-3"
               onClick={() => setIsMenuOpen(false)}
             >
               Trang chủ
@@ -626,21 +624,21 @@ const Header = () => {
             
             <button 
               onClick={() => handleScrollToSection('hot-deals-section')}
-              className="block text-xl md:text-2xl font-medium text-gray-700 pb-2 w-full text-left bg-transparent border-none"
+              className="block text-base font-medium text-gray-700 pb-2 w-full text-left bg-transparent border-none"
             >
               Khuyến mãi HOT
             </button>
             
             <button 
               onClick={() => handleScrollToSection('services-for-you')}
-              className="block text-xl md:text-2xl font-medium text-gray-700 pb-2 w-full text-left bg-transparent border-none"
+              className="block text-base font-medium text-gray-700 pb-2 w-full text-left bg-transparent border-none"
             >
               Dịch vụ nổi bật
             </button>
             
             <Link 
               to="/blog" 
-              className="block text-xl md:text-2xl font-medium text-gray-700 pb-2" 
+              className="block text-base font-medium text-gray-700 pb-2" 
               onClick={() => setIsMenuOpen(false)}
             >
               Blog làm đẹp
