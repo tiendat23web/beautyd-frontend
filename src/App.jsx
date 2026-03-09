@@ -4,7 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
-  Outlet, // Thêm Outlet để làm Layout
+  Outlet, 
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -41,15 +41,17 @@ import BeautyBlog from "./pages/Beautyblog";
 import BookingDetailsPage from "./pages/BookingDetailsPage";
 import MyCoupons from "./pages/MyCoupons"; 
 
-// --- IMPORT 8 TRANG THÔNG TIN MỚI TẠO ---
-import AboutPage from "./pages/AboutPage";
-import TermsPage from "./pages/TermsPage";
-import PrivacyPage from "./pages/PrivacyPage";
-import OperatingRegulation from "./pages/OperatingRegulation";
-import HelpCenter from "./pages/HelpCenter";
-import BookingGuide from "./pages/BookingGuide";
-import RefundPolicy from "./pages/RefundPolicy";
-import FAQPage from "./pages/FAQPage";
+// =======================================================
+// ✅ ĐÃ SỬA: CHỈ ĐÚNG ĐƯỜNG DẪN VÀO THƯ MỤC "legal"
+// =======================================================
+import AboutPage from "./pages/legal/AboutPage";
+import TermsPage from "./pages/legal/TermsPage";
+import PrivacyPage from "./pages/legal/PrivacyPage";
+import OperatingRegulation from "./pages/legal/OperatingRegulation";
+import HelpCenter from "./pages/legal/HelpCenter";
+import BookingGuide from "./pages/legal/BookingGuide";
+import RefundPolicy from "./pages/legal/RefundPolicy";
+import FAQPage from "./pages/legal/FAQPage";
 
 // Imports các trang dành cho Provider
 import ProviderKYCPage from "./pages/provider/ProviderKYCPage";
@@ -78,7 +80,7 @@ const InfoLayout = () => {
     <div className="flex flex-col min-h-screen bg-white">
       <Header />
       <main className="flex-grow">
-        <Outlet /> {/* Nội dung của 8 trang sẽ hiển thị ở đây */}
+        <Outlet /> 
       </main>
       <Footer />
     </div>

@@ -8,7 +8,7 @@ import { useAuth } from "../contexts/AuthContext";
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
+    email: "", // Có thể là email hoặc số điện thoại
     password: "",
     remember: false,
   });
@@ -28,14 +28,17 @@ const LoginPage = () => {
     }
   };
 
+  // ĐÃ SỬA: Tối ưu lại Regex bắt lỗi Email và Số điện thoại Việt Nam
   const validateForm = () => {
     const newErrors = {};
+    const identifier = formData.email.trim();
 
-    if (!formData.email) {
+    if (!identifier) {
       newErrors.email = "Vui lòng nhập email hoặc số điện thoại";
     } else {
-      const isEmail = /\S+@\S+\.\S+/.test(formData.email);
-      const isPhone = /(84|0[3|5|7|8|9])+([0-9]{8})\b/.test(formData.email);
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+      // Bắt đầu bằng 0 hoặc 84, theo sau là các đầu số hợp lệ, và có đúng 8 số cuối
+      const isPhone = /^(0|84)[3|5|7|8|9][0-9]{8}$/.test(identifier);
 
       if (!isEmail && !isPhone) {
         newErrors.email = "Email hoặc số điện thoại không hợp lệ";
@@ -49,6 +52,7 @@ const LoginPage = () => {
     return newErrors;
   };
 
+  // ĐÃ SỬA: Xử lý bắt lỗi chi tiết từ Backend (401 Sai mật khẩu, 404 Không thấy tài khoản)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -61,12 +65,13 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await loginUser(formData.email, formData.password);
-      if (response.status === 200) {
+      const response = await loginUser(formData.email.trim(), formData.password);
+      
+      // Axios thường trả về status 200 cho thành công
+      if (response.status === 200 || response.data?.token) {
         const { token, user } = response.data;
 
         login(token, user);
-
         toast.success("Đăng nhập thành công!");
 
         const roleUser = user.role;
@@ -77,16 +82,29 @@ const LoginPage = () => {
         } else {
           navigate("/");
         }
-      } else {
-        toast.error(
-          response.data.error ||
-            "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
-        );
-        setLoading(false);
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.");
+      
+      // Xử lý lỗi trả về từ Backend (nếu dùng Axios)
+      if (error.response) {
+        const status = error.response.status;
+        const backendMsg = error.response.data?.message || error.response.data?.error;
+
+        if (status === 404) {
+          toast.error("Tài khoản không tồn tại. Vui lòng kiểm tra lại email/SĐT!");
+        } else if (status === 401) {
+          toast.error("Mật khẩu không chính xác. Vui lòng thử lại!");
+        } else if (status === 400) {
+          toast.error(backendMsg || "Thông tin đăng nhập không hợp lệ.");
+        } else {
+          toast.error(backendMsg || "Đăng nhập thất bại. Vui lòng thử lại.");
+        }
+      } else {
+        // Lỗi không có phản hồi từ server (mất mạng, server sập)
+        toast.error("Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng!");
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -371,32 +389,23 @@ const LoginPage = () => {
       </div>
 
       {/* Animation Styles */}
-    {/* Animation Styles */}
-<style>{`
-  @keyframes blob {
-    0% {
-      transform: translate(0px, 0px) scale(1);
-    }
-    33% {
-      transform: translate(30px, -50px) scale(1.1);
-    }
-    66% {
-      transform: translate(-20px, 20px) scale(0.9);
-    }
-    100% {
-      transform: translate(0px, 0px) scale(1);
-    }
-  }
-  .animate-blob {
-    animation: blob 7s infinite;
-  }
-  .animation-delay-2000 {
-    animation-delay: 2s;
-  }
-  .animation-delay-4000 {
-    animation-delay: 4s;
-  }
-`}</style>
+      <style>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
     </div>
   );
 };
