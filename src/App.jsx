@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  Outlet, // Thêm Outlet để làm Layout
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,8 +14,13 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // --- IMPORT COMPONENT MỚI (Để theo dõi Online/Offline) ---
 import OnlineStatusManager from "./components/OnlineStatusManager";
 // --------------------------------------------------------
-import VerifyEmailPage from "./pages/VerifyEmailPage";
+
+// Import Header & Footer cho Layout các trang phụ
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+
 // Imports các trang dành cho người dùng
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
@@ -33,8 +39,17 @@ import ProviderShopPage from "./pages/ProviderShopPage";
 import BookingPage from "./pages/BookingPage"; 
 import BeautyBlog from "./pages/Beautyblog"; 
 import BookingDetailsPage from "./pages/BookingDetailsPage";
-// --- MỚI: Trang Kho ưu đãi ---
 import MyCoupons from "./pages/MyCoupons"; 
+
+// --- IMPORT 8 TRANG THÔNG TIN MỚI TẠO ---
+import AboutPage from "./pages/AboutPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import OperatingRegulation from "./pages/OperatingRegulation";
+import HelpCenter from "./pages/HelpCenter";
+import BookingGuide from "./pages/BookingGuide";
+import RefundPolicy from "./pages/RefundPolicy";
+import FAQPage from "./pages/FAQPage";
 
 // Imports các trang dành cho Provider
 import ProviderKYCPage from "./pages/provider/ProviderKYCPage";
@@ -46,13 +61,29 @@ import ProviderBookingsPage from "./pages/provider/ProviderBookingsPage";
 import ProviderBookingDetailPage from "./pages/provider/ProviderBookingDetailPage";
 import ProviderReviewsPage from "./pages/provider/ProviderReviewsPage";
 import ProviderChatPage from "./pages/provider/ProviderChatPage"; 
-// ✅ ĐÃ CẬP NHẬT: Import trang tạo mã giảm giá cho Provider
 import CreateDiscount from "./pages/provider/CreateDiscount"; 
 
 // Imports các trang dành cho Admin
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminKYCPage from "./pages/admin/AdminKYCPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+
+
+// ==========================================
+// LAYOUT DÀNH RIÊNG CHO CÁC TRANG THÔNG TIN
+// (Giữ Header ở trên và Footer ở dưới)
+// ==========================================
+const InfoLayout = () => {
+  return (
+    <div className="flex flex-col min-h-screen bg-white">
+      <Header />
+      <main className="flex-grow">
+        <Outlet /> {/* Nội dung của 8 trang sẽ hiển thị ở đây */}
+      </main>
+      <Footer />
+    </div>
+  );
+};
 
 function App() {
   return (
@@ -75,8 +106,9 @@ function App() {
           theme="light"
           style={{ zIndex: 999999 }}
         />
+        
         <Routes>
-          {/* Public Routes */}
+          {/* Public Routes - Gốc */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -89,7 +121,6 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/blog" element={<BeautyBlog />} />
           
-          {/* --- MỚI: Route trang ưu đãi (Cần đăng nhập) --- */}
           <Route path="/my-coupons" element={
             <ProtectedRoute>
                <MyCoupons />
@@ -104,8 +135,23 @@ function App() {
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/messages/:userId" element={<MessagesPage />} />
           <Route path="/map" element={<MapPage />} />
-          
           <Route path="/shop/:providerId" element={<ProviderShopPage />} />
+
+
+          {/* ==================================================== */}
+          {/* CÁC TRANG THÔNG TIN (Sử dụng InfoLayout có Header/Footer) */}
+          {/* ==================================================== */}
+          <Route element={<InfoLayout />}>
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/operating-regulation" element={<OperatingRegulation />} />
+            <Route path="/help-center" element={<HelpCenter />} />
+            <Route path="/booking-guide" element={<BookingGuide />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
+            <Route path="/faq" element={<FAQPage />} />
+          </Route>
+
 
           {/* Provider Routes - Protected */}
           <Route path="/provider/kyc" element={
@@ -153,14 +199,11 @@ function App() {
               <ProviderReviewsPage />
             </ProtectedRoute>
           } />
-          
           <Route path="/provider/messages" element={
             <ProtectedRoute allowedRoles={['PROVIDER']}>
               <ProviderChatPage />
             </ProtectedRoute>
           } />
-
-          {/* ✅ ĐÃ CẬP NHẬT: Route tạo mã giảm giá cho Provider */}
           <Route path="/provider/discounts/new" element={
             <ProtectedRoute allowedRoles={['PROVIDER']}>
               <CreateDiscount />

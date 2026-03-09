@@ -56,10 +56,10 @@ const Footer = () => {
           <div className="col-span-1">
             <h3 className="text-white font-bold text-base mb-5 uppercase tracking-wide">Về BeautyD</h3>
             <ul className="space-y-3 text-sm text-gray-400">
-              <li><Link to="/" className="hover:text-purple-400 hover:pl-1 transition-all block">Giới thiệu</Link></li>
-              <li><Link to="/" className="hover:text-purple-400 hover:pl-1 transition-all block">Điều khoản sử dụng</Link></li>
-              <li><Link to="/" className="hover:text-purple-400 hover:pl-1 transition-all block">Chính sách bảo mật</Link></li>
-              <li><Link to="/" className="hover:text-purple-400 hover:pl-1 transition-all block">Quy chế hoạt động</Link></li>
+              <li><Link to="/about" className="hover:text-purple-400 hover:pl-1 transition-all block">Giới thiệu</Link></li>
+              <li><Link to="/terms" className="hover:text-purple-400 hover:pl-1 transition-all block">Điều khoản sử dụng</Link></li>
+              <li><Link to="/privacy" className="hover:text-purple-400 hover:pl-1 transition-all block">Chính sách bảo mật</Link></li>
+              <li><Link to="/operating-regulation" className="hover:text-purple-400 hover:pl-1 transition-all block">Quy chế hoạt động</Link></li>
             </ul>
           </div>
 
@@ -67,10 +67,10 @@ const Footer = () => {
           <div className="col-span-1">
             <h3 className="text-white font-bold text-base mb-5 uppercase tracking-wide">Hỗ trợ</h3>
             <ul className="space-y-3 text-sm text-gray-400">
-              <li><Link to="/" className="hover:text-purple-400 hover:pl-1 transition-all block">Trung tâm trợ giúp</Link></li>
-              <li><Link to="/" className="hover:text-purple-400 hover:pl-1 transition-all block">Hướng dẫn đặt lịch</Link></li>
-              <li><Link to="/" className="hover:text-purple-400 hover:pl-1 transition-all block">Chính sách hoàn tiền</Link></li>
-              <li><Link to="/" className="hover:text-purple-400 hover:pl-1 transition-all block">Câu hỏi thường gặp</Link></li>
+              <li><Link to="/help-center" className="hover:text-purple-400 hover:pl-1 transition-all block">Trung tâm trợ giúp</Link></li>
+              <li><Link to="/booking-guide" className="hover:text-purple-400 hover:pl-1 transition-all block">Hướng dẫn đặt lịch</Link></li>
+              <li><Link to="/refund-policy" className="hover:text-purple-400 hover:pl-1 transition-all block">Chính sách hoàn tiền</Link></li>
+              <li><Link to="/faq" className="hover:text-purple-400 hover:pl-1 transition-all block">Câu hỏi thường gặp</Link></li>
             </ul>
           </div>
 
