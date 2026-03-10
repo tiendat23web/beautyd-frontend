@@ -47,24 +47,32 @@ const MessagesPage = () => {
     fetchConversations();
   }, []);
 
+  // ==============================================================
+  // ✅ ĐÃ SỬA LỖI TẠI ĐÂY: Xử lý hiển thị chat khi chưa có tin nhắn
+  // ==============================================================
   useEffect(() => {
-    if (userId && conversations.length > 0) {
+    // Chỉ chạy khi có userId trên URL và đã fetch xong dữ liệu (không còn loading)
+    if (userId && !loading) {
       const targetUserId = parseInt(userId);
       const existingConv = conversations.find((c) => c.user.id === targetUserId);
+      
       if (existingConv) {
+        // Nếu đã từng chat, mở lại cuộc hội thoại đó
         handleSelectConversation(existingConv.user);
       } else if (!selectedUser || selectedUser.id !== targetUserId) {
+        // Nếu chưa từng chat, tạo một khung chat mới để bắt đầu
         const placeholderUser = { 
             id: targetUserId, 
-            fullName: "Người dùng", 
+            fullName: "Nhà cung cấp dịch vụ", 
             businessName: null, 
             avatar: null, 
-            role: 'USER' 
+            role: 'PROVIDER' 
         };
         handleSelectConversation(placeholderUser);
       }
     }
-  }, [userId, conversations.length]);
+  }, [userId, loading, conversations]); 
+  // ==============================================================
 
   useEffect(() => {
     if (selectedUser) {
